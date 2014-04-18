@@ -7,6 +7,8 @@ from lxml.html.diff import tokenize, fixup_ins_del_tags, htmldiff_tokens
 from lxml.etree import ParserError, XMLSyntaxError
 import lxml.html, lxml.etree
 from lxml.html.clean import Cleaner
+from vendor.htmltreediff import diff as htmltreediff
+from vendor import mitsuhiko_htmldiff as mituhiko_diff
 from itertools import chain
 from django.utils.dateformat import DateFormat
 from django.utils.html import strip_tags as strip_tags_django
@@ -321,6 +323,15 @@ def image_size(datastream):
     return content_type, width, height
 
 def htmldiff(old_html, new_html):
+    return htmldiff__mitsuhiko(old_html, new_html)
+
+def htmldiff__tree(old_html, new_html):
+    return htmltreediff(old_html, new_html)
+
+def htmldiff__mitsuhiko(old_html, new_html):
+    return mituhiko_diff.render_html_diff(old_html, new_html)
+    
+def htmldiff__lxml(old_html, new_html):
     try:
         old_html_tokens = tokenize(old_html, include_hrefs=False) 
         new_html_tokens = tokenize(new_html, include_hrefs=False) 
