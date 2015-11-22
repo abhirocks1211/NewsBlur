@@ -204,10 +204,19 @@ class Feed(models.Model):
             self.next_scheduled_update = datetime.datetime.utcnow()
         self.fix_google_alerts_urls()
         
+        original_hash = self.hash_address_and_link
         feed_address = self.feed_address or ""
         feed_link = self.feed_link or ""
         self.hash_address_and_link = hashlib.sha1(feed_address+feed_link).hexdigest()
-            
+        # When changing addressses, see if feed exists
+        if self.hash_address_and_link != original_hash:
+            existing_feed = Feed.objects.filter(hash_address_and_link=self.hash_address_and_link)
+            if existing_feed and existing_feed.pk != self.pk:
+                logging.debug(" ---> [%-30s] ~FRFeed merge prevented, found existing feed: %s" % 
+                              (self, existing_feed))
+                return existing_feed
+        
+        # Truncate address, link, and title
         max_feed_title = Feed._meta.get_field('feed_title').max_length
         if len(self.feed_title) > max_feed_title:
             self.feed_title = self.feed_title[:max_feed_title]
@@ -235,7 +244,7 @@ class Feed(models.Model):
                 logging.debug(' ***> [%-30s] Feed deleted (%s).' % (unicode(self)[:30], self.pk))
                 return
 
-            if self.pk != duplicate_feeds[0].pk:
+            if self.pk and self.pk != duplicate_feeds[0].pk:
                 logging.debug(" ---> ~FRFound different feed (%s), merging %s in..." % (duplicate_feeds[0], self.pk))
                 feed = Feed.get_by_id(merge_feeds(duplicate_feeds[0].pk, self.pk))
                 return feed
@@ -514,6 +523,9 @@ class Feed(models.Model):
         self.set_next_scheduled_update()
         
     def check_feed_link_for_feed_address(self):
+        if self.known_good: 
+            return False, self
+        
         @timelimit(10)
         def _1():
             feed_address = None
@@ -536,6 +548,9 @@ class Feed(models.Model):
                     feed_address.endswith('feedburner.com/feed/')):
                     logging.debug("  ---> Feed points to 'Wierdo', ignoring.")
                     return False, self
+                existing_feed = Feed.get_feed_from_url(feed_address)
+                if existing_feed:
+                    return False, existing_feed
                 try:
                     self.feed_address = feed_address
                     feed = self.save()
@@ -2623,14 +2638,14 @@ def merge_feeds(original_feed_id, duplicate_feed_id, force=False):
     for user_sub in user_subs:
         user_sub.switch_feed(original_feed, duplicate_feed)
 
-    def delete_story_feed(model, feed_field='feed_id'):
-        duplicate_stories = model.objects(**{feed_field: duplicate_feed.pk})
-        # if duplicate_stories.count():
-        #     logging.info(" ---> Deleting %s %s" % (duplicate_stories.count(), model))
-        duplicate_stories.delete()
-        
-    delete_story_feed(MStory, 'story_feed_id')
-    delete_story_feed(MFeedPage, 'feed_id')
+    # def delete_story_feed(model, feed_field='feed_id'):
+    #     duplicate_stories = model.objects(**{feed_field: duplicate_feed.pk})
+    #     # if duplicate_stories.count():
+    #     #     logging.info(" ---> Deleting %s %s" % (duplicate_stories.count(), model))
+    #     duplicate_stories.delete()
+    #
+    # delete_story_feed(MStory, 'story_feed_id')
+    # delete_story_feed(MFeedPage, 'feed_id')
 
     try:
         DuplicateFeed.objects.create(
@@ -2652,10 +2667,10 @@ def merge_feeds(original_feed_id, duplicate_feed_id, force=False):
     logging.debug(' ---> Dupe subscribers (%s): %s, Original subscribers (%s): %s' %
                   (duplicate_feed.pk, duplicate_feed.num_subscribers, 
                    original_feed.pk, original_feed.num_subscribers))
-    if duplicate_feed.pk != original_feed.pk:
-        duplicate_feed.delete()
-    else:
-        logging.debug(" ***> Duplicate feed is the same as original feed. Panic!")
+    # if duplicate_feed.pk != original_feed.pk:
+    #     duplicate_feed.delete()
+    # else:
+    #     logging.debug(" ***> Duplicate feed is the same as original feed. Panic!")
     logging.debug(' ---> Deleted duplicate feed: %s/%s' % (duplicate_feed, duplicate_feed_id))
     original_feed.branch_from_feed = None
     original_feed.count_subscribers()
@@ -2664,7 +2679,7 @@ def merge_feeds(original_feed_id, duplicate_feed_id, force=False):
                   (original_feed.num_subscribers))
                   
           
-    MSharedStory.switch_feed(original_feed_id, duplicate_feed_id)
+    # MSharedStory.switch_feed(original_feed_id, duplicate_feed_id)
     
     return original_feed_id
     

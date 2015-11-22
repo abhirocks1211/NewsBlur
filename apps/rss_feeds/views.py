@@ -297,7 +297,7 @@ def exception_change_feed_address(request):
     code = -1
 
     if not feed.known_good and (feed.has_page_exception or feed.has_feed_exception):
-        # Fix broken feed
+        # Fix broken feed only if the feed has never been fetched. Usually broken on OPML import.
         logging.user(request, "~FRFixing feed exception by address: ~SB%s~SN to ~SB%s" % (feed.feed_address, feed_address))
         feed.has_feed_exception = False
         feed.active = True
