@@ -77,8 +77,8 @@ def opml_upload(request):
 def opml_export(request):
     user     = get_user(request)
     now      = datetime.datetime.now()
-    if request.REQUEST.get('user_id') and user.is_staff:
-        user = User.objects.get(pk=request.REQUEST['user_id'])
+    if request.GET.get('user_id') and user.is_staff:
+        user = User.objects.get(pk=request.GET['user_id'])
     exporter = OPMLExporter(user)
     opml     = exporter.process()
     
@@ -157,7 +157,7 @@ def reader_callback(request):
     http = httplib2.Http()
     http.disable_ssl_certificate_validation = True
     try:
-        credential = FLOW.step2_exchange(request.REQUEST)
+        credential = FLOW.step2_exchange(request.GET)
     except FlowExchangeError:
         logging.info(" ***> [%s] Bad token from Google Reader." % (request.user,))
         return render_to_response('social/social_connect.xhtml', {
@@ -203,7 +203,7 @@ def import_from_google_reader(request):
     
     if request.user.is_authenticated():
         reader_importer = GoogleReaderImporter(request.user)
-        auto_active = bool(request.REQUEST.get('auto_active') or False)
+        auto_active = bool(request.GET.get('auto_active') or False)
         
         try:
             code = reader_importer.try_import_feeds(auto_active=auto_active)

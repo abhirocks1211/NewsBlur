@@ -32,9 +32,9 @@ def twitter_connect(request):
     twitter_consumer_key = settings.TWITTER_CONSUMER_KEY
     twitter_consumer_secret = settings.TWITTER_CONSUMER_SECRET
     
-    oauth_token = request.REQUEST.get('oauth_token')
-    oauth_verifier = request.REQUEST.get('oauth_verifier')
-    denied = request.REQUEST.get('denied')
+    oauth_token = request.GET.get('oauth_token')
+    oauth_verifier = request.GET.get('oauth_verifier')
+    denied = request.GET.get('denied')
     if denied:
         logging.user(request, "~BB~FRDenied Twitter connect")
         return {'error': 'Denied! Try connecting again.'}
@@ -95,7 +95,7 @@ def facebook_connect(request):
         "display": "popup",
     }
 
-    verification_code = request.REQUEST.get('code')
+    verification_code = request.GET.get('code')
     if verification_code:
         args["client_secret"] = facebook_secret
         args["code"] = verification_code
@@ -137,9 +137,9 @@ def facebook_connect(request):
         
         logging.user(request, "~BB~FRFinishing Facebook connect")
         return {}
-    elif request.REQUEST.get('error'):
+    elif request.GET.get('error'):
         logging.user(request, "~BB~FRFailed Facebook connect")
-        return {'error': '%s... Try connecting again.' % request.REQUEST.get('error')}
+        return {'error': '%s... Try connecting again.' % request.GET.get('error')}
     else:
         # Start the OAuth process
         logging.user(request, "~BB~FRStarting Facebook connect")
@@ -158,8 +158,8 @@ def appdotnet_connect(request):
         "scope": ["email", "write_post", "follow"],
     }
 
-    oauth_code = request.REQUEST.get('code')
-    denied = request.REQUEST.get('denied')
+    oauth_code = request.GET.get('code')
+    denied = request.GET.get('denied')
     if denied:
         logging.user(request, "~BB~FRDenied App.net connect")
         return {'error': 'Denied! Try connecting again.'}

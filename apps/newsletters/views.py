@@ -37,7 +37,7 @@ def newsletter_receive(request):
     #     'Content-Type':'multipart/mixed; boundary="------------020601070403020003080006"',
     #     'Subject':'Test Newsletter theskimm'
     # }
-    params = request.REQUEST
+    params = request.POST
     
     response = HttpResponse('OK')
     

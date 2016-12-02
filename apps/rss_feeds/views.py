@@ -36,8 +36,8 @@ IGNORE_AUTOCOMPLETE = [
 @ajax_login_required
 @json.json_view
 def search_feed(request):
-    address = request.REQUEST.get('address')
-    offset = int(request.REQUEST.get('offset', 0))
+    address = request.GET.get('address')
+    offset = int(request.GET.get('offset', 0))
     if not address:
         return dict(code=-1, message="Please provide a URL/address.")
     
@@ -492,11 +492,11 @@ def status(request):
 @required_params('story_id', feed_id=int)
 @json.json_view
 def original_text(request):
-    story_id = request.REQUEST.get('story_id')
-    feed_id = request.REQUEST.get('feed_id')
-    story_hash = request.REQUEST.get('story_hash', None)
-    force = request.REQUEST.get('force', False)
-    debug = request.REQUEST.get('debug', False)
+    story_id = request.GET.get('story_id')
+    feed_id = request.GET.get('feed_id')
+    story_hash = request.GET.get('story_hash', None)
+    force = request.GET.get('force', False)
+    debug = request.GET.get('debug', False)
 
     if story_hash:
         story, _ = MStory.find_story(story_hash=story_hash)
@@ -518,9 +518,9 @@ def original_text(request):
 
 @required_params('story_hash')
 def original_story(request):
-    story_hash = request.REQUEST.get('story_hash')
-    force = request.REQUEST.get('force', False)
-    debug = request.REQUEST.get('debug', False)
+    story_hash = request.GET.get('story_hash')
+    force = request.GET.get('force', False)
+    debug = request.GET.get('debug', False)
 
     story, _ = MStory.find_story(story_hash=story_hash)
 
@@ -535,8 +535,8 @@ def original_story(request):
 @required_params('story_hash')
 @json.json_view
 def story_changes(request):
-    story_hash = request.REQUEST.get('story_hash', None)
-    show_changes = is_true(request.REQUEST.get('show_changes', True))
+    story_hash = request.GET.get('story_hash', None)
+    show_changes = is_true(request.GET.get('show_changes', True))
     story, _ = MStory.find_story(story_hash=story_hash)
     if not story:
         logging.user(request, "~FYFetching ~FGoriginal~FY story page: ~FRstory not found")

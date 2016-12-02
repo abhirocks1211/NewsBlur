@@ -98,7 +98,7 @@ def login(request):
 
     return render_to_response('accounts/login.html', {
         'form': form,
-        'next': request.REQUEST.get('next', "")
+        'next': request.GET.get('next', "")
     }, context_instance=RequestContext(request))
     
 @csrf_protect
@@ -116,7 +116,7 @@ def signup(request):
 
     return render_to_response('accounts/signup.html', {
         'form': form,
-        'next': request.REQUEST.get('next', "")
+        'next': request.GET.get('next', "")
     }, context_instance=RequestContext(request))
 
 @login_required
@@ -135,8 +135,8 @@ def redeem_code(request):
 
     return render_to_response('accounts/redeem_code.html', {
         'form': form,
-        'code': request.REQUEST.get('code', ""),
-        'next': request.REQUEST.get('next', "")
+        'code': request.GET.get('code', ""),
+        'next': request.GET.get('next', "")
     }, context_instance=RequestContext(request))
     
 
@@ -388,7 +388,7 @@ def stripe_form(request):
 @render_to('reader/activities_module.xhtml')
 def load_activities(request):
     user = get_user(request)
-    page = max(1, int(request.REQUEST.get('page', 1)))
+    page = max(1, int(request.GET.get('page', 1)))
     activities, has_next_page = MActivity.user(user.pk, page=page)
 
     return {
@@ -403,7 +403,7 @@ def load_activities(request):
 def payment_history(request):
     user = request.user
     if request.user.is_staff:
-        user_id = request.REQUEST.get('user_id', request.user.pk)
+        user_id = request.GET.get('user_id', request.user.pk)
         user = User.objects.get(pk=user_id)
 
     history = PaymentHistory.objects.filter(user=user)
@@ -450,8 +450,8 @@ def cancel_premium(request):
 @ajax_login_required
 @json.json_view
 def refund_premium(request):
-    user_id = request.REQUEST.get('user_id')
-    partial = request.REQUEST.get('partial', False)
+    user_id = request.POST.get('user_id')
+    partial = request.POST.get('partial', False)
     user = User.objects.get(pk=user_id)
     try:
         refunded = user.profile.refund_premium(partial=partial)
@@ -466,7 +466,7 @@ def refund_premium(request):
 @ajax_login_required
 @json.json_view
 def upgrade_premium(request):
-    user_id = request.REQUEST.get('user_id')
+    user_id = request.POST.get('user_id')
     user = User.objects.get(pk=user_id)
     
     gift = MGiftCode.add(gifting_user_id=User.objects.get(username='samuel').pk, 
@@ -479,7 +479,7 @@ def upgrade_premium(request):
 @ajax_login_required
 @json.json_view
 def never_expire_premium(request):
-    user_id = request.REQUEST.get('user_id')
+    user_id = request.POST.get('user_id')
     user = User.objects.get(pk=user_id)
     if user.profile.is_premium:
         user.profile.premium_expire = None
@@ -492,7 +492,7 @@ def never_expire_premium(request):
 @ajax_login_required
 @json.json_view
 def update_payment_history(request):
-    user_id = request.REQUEST.get('user_id')
+    user_id = request.POST.get('user_id')
     user = User.objects.get(pk=user_id)
     user.profile.setup_premium_history(check_premium=False)
     

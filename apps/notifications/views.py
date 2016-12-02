@@ -61,7 +61,7 @@ def set_notifications_for_feed(request):
 def set_apns_token(request):
     user = get_user(request)
     tokens = MUserNotificationTokens.get_tokens_for_user(user.pk)
-    apns_token = request.REQUEST['apns_token']
+    apns_token = request.POST['apns_token']
     
     logging.user(user, "~FCUpdating APNS push token")
     if apns_token not in tokens.ios_tokens:
@@ -76,7 +76,7 @@ def set_apns_token(request):
 def set_android_token(request):
     user = get_user(request)
     tokens = MUserNotificationTokens.get_tokens_for_user(user.pk)
-    token = request.REQUEST['token']
+    token = request.POST['token']
     
     logging.user(user, "~FCUpdating Android push token")
     if token not in tokens.android_tokens:
@@ -91,8 +91,8 @@ def set_android_token(request):
 @json.json_view
 def force_push(request):
     user = get_user(request)
-    feed_id = request.REQUEST['feed_id']
-    count = int(request.REQUEST.get('count', 1))
+    feed_id = request.GET['feed_id']
+    count = int(request.POST.get('count', 1))
     
     logging.user(user, "~BM~FWForce pushing %s stories: ~SB%s" % (count, Feed.get_by_id(feed_id)))
     sent_count, user_count = MUserFeedNotification.push_feed_notifications(feed_id, new_stories=count, force=True)
