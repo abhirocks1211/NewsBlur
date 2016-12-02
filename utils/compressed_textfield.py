@@ -1,8 +1,5 @@
 from django.db import models
 
-from south.modelsinspector import add_introspection_rules
-add_introspection_rules([], ["^utils\.compressed_textfield\.StoryField"])
-
 def uncompress_string(s):
     '''helper function to reverse django.utils.text.compress_string'''
     import cStringIO, gzip

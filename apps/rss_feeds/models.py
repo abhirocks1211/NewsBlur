@@ -28,7 +28,7 @@ from django.template.defaultfilters import slugify
 from django.utils.encoding import smart_str, smart_unicode
 from mongoengine.queryset import OperationError, Q, NotUniqueError
 from mongoengine.base import ValidationError
-from vendor.timezones.utilities import localtime_for_timezone
+from vendor.timezone_utils import localtime_for_timezone
 from apps.rss_feeds.tasks import UpdateFeeds, PushFeeds, ScheduleCountTagsForUser
 from apps.rss_feeds.text_importer import TextImporter
 from apps.search.models import SearchStory, SearchFeed

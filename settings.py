@@ -7,8 +7,6 @@ import os
 
 CURRENT_DIR   = os.path.dirname(__file__)
 NEWSBLUR_DIR  = CURRENT_DIR
-TEMPLATE_DIRS = (os.path.join(CURRENT_DIR, 'templates'),
-                 os.path.join(CURRENT_DIR, 'vendor/zebra/templates'))
 MEDIA_ROOT    = os.path.join(CURRENT_DIR, 'media')
 STATIC_ROOT   = os.path.join(CURRENT_DIR, 'static')
 UTILS_ROOT    = os.path.join(CURRENT_DIR, 'utils')
@@ -84,13 +82,6 @@ PAYPAL_TEST           = False
 # = Django-specific Modules =
 # ===========================
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.media",
-    'django.core.context_processors.request',
-)
-
 MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -149,10 +140,6 @@ LOGGING = {
         },
     },
     'handlers': {
-        'null': {
-            'level':'DEBUG',
-            'class':'django.utils.log.NullHandler',
-        },
         'console':{
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -183,12 +170,12 @@ LOGGING = {
             'propagate': True,
         },
         'django.db.backends': {
-            'handlers': ['null'],
+            'handlers': ['console', 'log_file'],
             'level': 'DEBUG',
             'propagate': False,
         },
         'django.security.DisallowedHost': {
-            'handlers': ['null'],
+            'handlers': ['console', 'log_file'],
             'propagate': False,
         },
         'newsblur': {
@@ -197,7 +184,7 @@ LOGGING = {
             'propagate': False,
         },
         'apps': {
-            'handlers': ['log_file'],
+            'handlers': ['console', 'log_file'],
             'level': 'INFO',
             'propagate': True,
         },
@@ -241,7 +228,6 @@ ROOT_URLCONF            = 'urls'
 INTERNAL_IPS            = ('127.0.0.1',)
 LOGGING_LOG_SQL         = True
 APPEND_SLASH            = False
-SOUTH_TESTS_MIGRATE     = False
 SESSION_ENGINE          = 'redis_sessions.session'
 TEST_RUNNER             = "utils.testrunner.TestRunner"
 SESSION_COOKIE_NAME     = 'newsblur_sessionid'
@@ -284,7 +270,8 @@ INSTALLED_APPS = (
     'django_extensions',
     'djcelery',
     # 'kombu.transport.django',
-    'vendor.paypal.standard.ipn',
+    'timezone_field',
+    'paypal.standard.ipn',
     'apps.rss_feeds',
     'apps.reader',
     'apps.analyzer',
@@ -300,11 +287,10 @@ INSTALLED_APPS = (
     'apps.oauth',
     'apps.search',
     'apps.categories',
-    'south',
     'utils',
     'vendor',
     'vendor.typogrify',
-    'vendor.zebra',
+    'zebra',
     'oauth2_provider',
     'corsheaders',
 )
@@ -579,7 +565,6 @@ if not DEBUG:
     RAVEN_CLIENT = raven.Client(SENTRY_DSN)
     
 COMPRESS = not DEBUG
-TEMPLATE_DEBUG = DEBUG
 ACCOUNT_ACTIVATION_DAYS = 30
 AWS_ACCESS_KEY_ID = S3_ACCESS_KEY
 AWS_SECRET_ACCESS_KEY = S3_SECRET
@@ -597,17 +582,43 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 
 if DEBUG:
-    TEMPLATE_LOADERS = (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )
+    TEMPLATES = [{
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    }]
 else:
-    TEMPLATE_LOADERS = (
-        ('django.template.loaders.cached.Loader', (
-            'django.template.loaders.filesystem.Loader',
-            'django.template.loaders.app_directories.Loader',
-        )),
-    )
+    TEMPLATES = [{
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+            ],
+            'loaders': [
+                ('django.template.loaders.cached.Loader', [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ]),
+            ],
+        },
+    }]
 
 # =========
 # = Mongo =

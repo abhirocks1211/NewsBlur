@@ -5,7 +5,7 @@ from django import template
 from apps.reader.forms import FeatureForm
 from apps.reader.models import Feature
 from apps.social.models import MSocialProfile
-from vendor.timezones.utilities import localtime_for_timezone
+from vendor.timezone_utils import localtime_for_timezone
 from utils.user_functions import get_user
 
 register = template.Library()

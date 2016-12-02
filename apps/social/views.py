@@ -34,7 +34,7 @@ from utils.story_functions import format_story_link_date__long
 from utils.story_functions import strip_tags
 from utils.ratelimit import ratelimit
 from utils import jennyholzer
-from vendor.timezones.utilities import localtime_for_timezone
+from vendor.timezone_utils import localtime_for_timezone
 
 
 @json.json_view

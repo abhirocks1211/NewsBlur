@@ -1,8 +1,8 @@
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 from apps.oauth import views
 from oauth2_provider import views as op_views
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^twitter_connect/?$', views.twitter_connect, name='twitter-connect'),
     url(r'^facebook_connect/?$', views.facebook_connect, name='facebook-connect'),
     url(r'^appdotnet_connect/?$', views.appdotnet_connect, name='appdotnet-connect'),
@@ -34,4 +34,4 @@ urlpatterns = patterns('',
     url(r'^actions/add-site/?$', views.api_save_new_subscription, name="ifttt-action-subscription"),
     url(r'^actions/add-site/fields/folder/options/?$', 
         views.api_folder_list, name="ifttt-action-folderlist"),
-)
+]

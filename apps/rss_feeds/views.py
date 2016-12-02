@@ -22,7 +22,7 @@ from utils.user_functions import get_user
 from utils.view_functions import get_argument_or_404
 from utils.view_functions import required_params
 from utils.view_functions import is_true
-from vendor.timezones.utilities import localtime_for_timezone
+from vendor.timezone_utils import localtime_for_timezone
 from utils.ratelimit import ratelimit
 
 IGNORE_AUTOCOMPLETE = [

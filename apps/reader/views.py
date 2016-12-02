@@ -20,7 +20,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, Http404, UnreadablePostError
 from django.conf import settings
 from django.core.mail import mail_admins
-from django.core.validators import email_re
+from django.core.validators import validate_email
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.sites.models import Site
 from django.utils import feedgenerator
@@ -59,7 +59,7 @@ from utils import log as logging
 from utils.view_functions import get_argument_or_404, render_to, is_true
 from utils.view_functions import required_params
 from utils.ratelimit import ratelimit
-from vendor.timezones.utilities import localtime_for_timezone
+from vendor.timezone_utils import localtime_for_timezone
 import tweepy
 
 BANNED_URLS = [
@@ -2377,13 +2377,22 @@ def send_story_email(request):
     from_address = 'share@newsblur.com'
     share_user_profile = MSocialProfile.get_user(request.user.pk)
 
+    valid_email = False
+    valid_from = False
+    try:
+        all(validate_email(to_address) for to_address in to_addresses if to_addresses)
+        valid_email = True
+        validate_email(from_email)
+        valid_from = True
+    except validate_email.ValidationError:
+        pass
     if not to_addresses:
         code = -1
         message = 'Please provide at least one email address.'
-    elif not all(email_re.match(to_address) for to_address in to_addresses if to_addresses):
+    elif not valid_email:
         code = -1
         message = 'You need to send the email to a valid email address.'
-    elif not email_re.match(from_email):
+    elif not valid_from:
         code = -1
         message = 'You need to provide your email address.'
     elif not from_name:

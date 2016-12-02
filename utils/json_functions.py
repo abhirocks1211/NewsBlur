@@ -2,7 +2,10 @@
 from django.db import models
 from django.utils.functional import Promise
 from django.utils.encoding import force_unicode, smart_unicode
-from django.utils import simplejson as json
+try:
+    from django.utils import simplejson as json
+except:
+    import simplejson as json
 from decimal import Decimal
 from django.core import serializers
 from django.conf import settings

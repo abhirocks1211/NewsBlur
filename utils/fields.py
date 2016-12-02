@@ -1,8 +1,8 @@
 from django.db.models import OneToOneField
-from django.db.models.fields.related import SingleRelatedObjectDescriptor
-
-from south.modelsinspector import add_introspection_rules
-add_introspection_rules([], ["^utils\.fields\.AutoOneToOneField"])
+try:
+    from django.db.models.fields.related import SingleRelatedObjectDescriptor
+except ImportError:
+    from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor as SingleRelatedObjectDescriptor
 
 class AutoSingleRelatedObjectDescriptor(SingleRelatedObjectDescriptor):
     def __get__(self, instance, instance_type=None):

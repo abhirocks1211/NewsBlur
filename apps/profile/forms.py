@@ -1,7 +1,7 @@
 import re
 import requests
 from django import forms
-from vendor.zebra.forms import StripePaymentForm
+from zebra.forms import StripePaymentForm
 from django.utils.safestring import mark_safe
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
