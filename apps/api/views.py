@@ -6,7 +6,7 @@ import lxml.html
 from django import forms
 from django.conf import settings
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext
 from django.contrib.auth import login as login_user
 from django.contrib.auth import logout as logout_user
@@ -106,7 +106,7 @@ def add_site_load_script(request, token):
     except UserSubscriptionFolders.DoesNotExist:
         code = -1
     
-    return render_to_response('api/share_bookmarklet.js', {
+    return render(request, 'api/share_bookmarklet.js', {
         'code': code,
         'token': token,
         'folders': (usf and usf.folders) or [],
@@ -117,8 +117,7 @@ def add_site_load_script(request, token):
         'add_image': add_image,
         'new_folder_image': new_folder_image,
     }, 
-    context_instance=RequestContext(request),
-    mimetype='application/javascript')
+    content_type='application/javascript')
 
 def add_site(request, token):
     code       = 0
@@ -155,7 +154,7 @@ def add_site(request, token):
         'code':    code,
         'message': message,
         'usersub': us and us.feed_id,
-    }) + ')', mimetype='text/plain')
+    }) + ')', content_type='text/plain')
     
 def check_share_on_site(request, token):
     code       = 0
@@ -236,7 +235,7 @@ def check_share_on_site(request, token):
         'other_stories'     : other_stories,
         'previous_stories'  : previous_stories,
         'users'             : users,
-    }) + ')', mimetype='text/plain')
+    }) + ')', content_type='text/plain')
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Methods'] = 'GET'
     
@@ -273,7 +272,7 @@ def share_story(request, token=None):
             'code':     code,
             'message':  message,
             'story':    None,
-        }), mimetype='text/plain')
+        }), content_type='text/plain')
     
     if feed_id:
         feed = Feed.get_by_id(feed_id)
@@ -352,7 +351,7 @@ def share_story(request, token=None):
         'code':     code,
         'message':  message,
         'story':    shared_story,
-    }), mimetype='text/plain')
+    }), content_type='text/plain')
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Methods'] = 'POST'
     

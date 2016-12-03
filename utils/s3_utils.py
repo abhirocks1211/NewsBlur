@@ -96,12 +96,12 @@ class S3Store:
         image = ImageOps.resize_image(image_body, 'fullsize', fit_to_size=False)
         if image:
             key = 'avatars/%s/large_%s' % (user_id, image_name)
-            self._save_object(key, image, mimetype=mimetype)
+            self._save_object(key, image, content_type=mimetype)
 
         image = ImageOps.resize_image(image_body, 'thumbnail', fit_to_size=True)
         if image:
             key = 'avatars/%s/thumbnail_%s' % (user_id, image_name)
-            self._save_object(key, image, mimetype=mimetype)
+            self._save_object(key, image, content_type=mimetype)
         
         return image and image_name
 
@@ -121,7 +121,7 @@ class S3Store:
     def _make_key(self):
         return Key(bucket=self.bucket)
     
-    def _save_object(self, key, file_object, mimetype=None):
+    def _save_object(self, key, file_object, content_type=None):
         k = self._make_key()
         k.key = key
         file_object.seek(0)

@@ -1,6 +1,6 @@
 from django.http import Http404, HttpResponse
 from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from utils import json_functions as json
 import functools
 
@@ -31,9 +31,9 @@ def render_to(template):
         def wrapper(request, *args, **kw):
             output = func(request, *args, **kw)
             if isinstance(output, (list, tuple)):
-                return render_to_response(output[1], output[0], RequestContext(request))
+                return render(request, output[1], output[0])
             elif isinstance(output, dict):
-                return render_to_response(template, output, RequestContext(request))
+                return render(request, template, output)
             return output
         return wrapper
     return renderer
@@ -96,4 +96,4 @@ class required_params(object):
         return HttpResponse(json.encode({
             'message': message,
             'code': -1,
-        }), mimetype="application/json", status=status_code)
+        }), content_type="application/json", status=status_code)

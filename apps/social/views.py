@@ -5,7 +5,7 @@ import random
 import re
 from bson.objectid import ObjectId
 from mongoengine.queryset import NotUniqueError
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render, render_to_response
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -1425,8 +1425,7 @@ def load_interactions(request):
     logging.user(request, "~FBLoading interactions ~SBp/%s" % page)
     
     if format == 'html':
-        return render_to_response('reader/interactions_module.xhtml', data,
-                                  context_instance=RequestContext(request))
+        return render(request, 'reader/interactions_module.xhtml', data)
     else:
         return json.json_response(request, data)
 

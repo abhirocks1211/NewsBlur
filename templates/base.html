@@ -109,7 +109,9 @@
     NEWSBLUR.app = {};
   </script>
   
+  {% autoescape off %}
   {% include_stylesheets "common" %}
+  {% endautoescape %}
   
   {% if user_profile.is_premium %}
     {% if debug %}
@@ -154,9 +156,11 @@
       
   </div>
   
+  {% autoescape off %}
   {% block head_js %}
     {% include_javascripts "common" %}
   {% endblock head_js %}
+  {% endautoescape %}
 
   <script type="text/javascript" charset="utf-8">
     _.extend(NEWSBLUR.Preferences, {% if user_profile.preferences %}{{ user_profile.preferences|safe }}{% else %}{}{% endif %});
