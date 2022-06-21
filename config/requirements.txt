@@ -31,7 +31,7 @@ mongoengine==0.10.7
 mysql-python==1.2.5
 ndg-httpsclient==0.4.2
 nltk==3.2.1
-numpy==1.11.2
+numpy==1.22.0
 oauth2==1.9.0.post1
 pillow==3.4.2
 psutil==5.0.0
